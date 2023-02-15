@@ -89,7 +89,7 @@
         android:layout_marginTop="96dp"
         android:layout_marginEnd="179dp"
         android:layout_marginBottom="101dp"
-        android:text="TextView"
+        android:text="loading..."
         app:layout_constraintBottom_toTopOf="@+id/compass"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
