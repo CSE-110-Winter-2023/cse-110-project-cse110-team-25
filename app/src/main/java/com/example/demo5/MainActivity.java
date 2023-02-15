@@ -5,10 +5,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -21,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
     private LocationService locationService;
     private boolean requestingLocationUpdates = false;
     public static final int DEGREES_IN_A_CIRCLE = 360;
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+    private Future<Void> future;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,29 +52,22 @@ public class MainActivity extends AppCompatActivity {
         ImageView parentHouse = findViewById(R.id.parentHouse);
         TextView textView = findViewById(R.id.timeTextView);
         locationService.getLocation().observe(this, loc -> {
-            textView.setText(Double.toString(loc.first) + " , " +
-                    Double.toString(loc.second));
-
-            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-            Double pLat = Double.parseDouble(preferences.getString("parentLatitude", "123"));
-            Double pLong = Double.parseDouble(preferences.getString("parentLongitude", "123"));
-
-            double adjacent = (pLong - loc.second);
-            double hypotenuse = Math.sqrt(((pLat - loc.first) * (pLat - loc.first)) + ((pLong - loc.second) * (pLong - loc.second)));
-
-            double ang = Math.acos(adjacent / hypotenuse);
+            double ang = refresh(textView, loc);
 
             ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
-            layoutParams.circleAngle = DEGREES_IN_A_CIRCLE - (float) Math.toDegrees(ang);
+            layoutParams.circleAngle = (float) Math.toDegrees(ang);
         });
         loadProfile();
 
+        //this.future = (Future<Void>) backgroundThreadExecutor.submit(() -> {
+        //System.out.println("sleep");
         orientationService.getOrientation().observe(this, orientation -> {
             float deg = (float) Math.toDegrees(orientation);
             compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
+
+
         });
-
-
+        //});
     }
 
     protected void onPause(Bundle savedInstanceState) {
@@ -103,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         TextView parentLongitude = findViewById(R.id.parentLongitude);
         parentLatitude.setText(s);
         parentLongitude.setText(t);
-        System.out.println(preferences.getAll().toString());
     }
 
     public void saveProfile() {
@@ -117,12 +117,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void save(View view) {
+        save();
+    }
+
+    public void save() {
         saveProfile();
         loadProfile();
         //onPause(savedInstanceState);
 
         Intent intent = new Intent(this, MainActivity.class);
-        finish();
+        //this.future.cancel(true);
+        //finish();
         startActivity(intent);
+        System.out.println("new activity");
     }
+
+    public double refresh(TextView textView, Pair<Double,Double> loc) {
+        textView.setText(Double.toString(loc.first) + " , " +
+                Double.toString(loc.second));
+
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        Double pLat = Double.parseDouble(preferences.getString("parentLatitude", "123"));
+        Double pLong = Double.parseDouble(preferences.getString("parentLongitude", "123"));
+
+        double adjacent = (pLong - loc.second);
+        double hypotenuse = Math.sqrt(((pLat - loc.first) * (pLat - loc.first)) + ((pLong - loc.second) * (pLong - loc.second)));
+
+        return Math.acos(adjacent / hypotenuse);
+    }
+
+    public void refresh(View view) {
+        refresh(textView, loc);
+    }
+
+ */
 }
