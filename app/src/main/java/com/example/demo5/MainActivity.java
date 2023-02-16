@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
@@ -15,6 +16,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -27,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private LocationService locationService;
     private boolean requestingLocationUpdates = false;
     public static final int DEGREES_IN_A_CIRCLE = 360;
-    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
-    private Future<Void> future;
+    private ScheduledExecutorService backgroundThreadExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> future;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,39 +56,51 @@ public class MainActivity extends AppCompatActivity {
         ImageView parentHouse = findViewById(R.id.parentHouse);
         TextView textView = findViewById(R.id.timeTextView);
 
-        this.future = (Future<Void>) backgroundThreadExecutor.submit(() -> {
 
-            locationService.getLocation().observe(this, loc -> {
+
+        locationService.getLocation().observe(this, loc -> {
+            Log.d("whatever", "after observe");
+            runOnUiThread(() -> {
                 textView.setText(Double.toString(loc.first) + " , " +
                         Double.toString(loc.second));
+            });
+        });
 
-                SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-                Double pLat = Double.parseDouble(preferences.getString("parentLatitude", "123"));
-                Double pLong = Double.parseDouble(preferences.getString("parentLongitude", "123"));
+        this.future = backgroundThreadExecutor.scheduleAtFixedRate(() -> {
+            Log.d("whatever", textView.getText().toString());
 
-                double adjacent = (pLong - loc.second);
-                double hypotenuse = Math.sqrt(((pLat - loc.first) * (pLat - loc.first)) + ((pLong - loc.second) * (pLong - loc.second)));
-
-                double ang = Math.acos(adjacent / hypotenuse);
-
-                runOnUiThread(() -> {
-
-                    ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
-                    layoutParams.circleAngle = (float) Math.toDegrees(ang);
-
-                    orientationService.getOrientation().observe(this, orientation -> {
-                        float deg = (float) Math.toDegrees(orientation);
-                        compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
+            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            Double pLat = Double.parseDouble(preferences.getString("parentLatitude", "123"));
+            Double pLong = Double.parseDouble(preferences.getString("parentLongitude", "123"));
 
 
-                    });
-                });
+            //double adjacent = (pLong - loc.second);
+            //double hypotenuse = Math.sqrt(((pLat - loc.first) * (pLat - loc.first)) + ((pLong - loc.second) * (pLong - loc.second)));
+
+            //double ang = Math.acos(adjacent / hypotenuse);
+
+
+
+
+        }, 0, 1000, TimeUnit.MILLISECONDS);
+
+        runOnUiThread(() -> {
+
+            ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
+            //layoutParams.circleAngle = (float) Math.toDegrees(ang);
+            layoutParams.circleAngle = (float) Math.toDegrees(0);
+
+            orientationService.getOrientation().observe(this, orientation -> {
+                Log.d("whatever", "after orientation");
+                float deg = (float) Math.toDegrees(orientation);
+                compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
+
 
             });
-            loadProfile();
 
         });
 
+        loadProfile();
 
 
         //this.future = (Future<Void>) backgroundThreadExecutor.submit(() -> {
@@ -119,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
             //        Looper.getMainLooper());
         }
     */
+
     public void loadProfile() {
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
         String s = preferences.getString("parentLatitude", "123");
@@ -150,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, MainActivity.class);
         //this.future.cancel(true);
-        //finish();
+        finish();
         startActivity(intent);
         System.out.println("new activity");
     }
