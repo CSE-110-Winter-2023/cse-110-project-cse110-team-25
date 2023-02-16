@@ -51,22 +51,45 @@ public class MainActivity extends AppCompatActivity {
 
         ImageView parentHouse = findViewById(R.id.parentHouse);
         TextView textView = findViewById(R.id.timeTextView);
-        locationService.getLocation().observe(this, loc -> {
-            double ang = refresh(textView, loc);
 
-            ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
-            layoutParams.circleAngle = (float) Math.toDegrees(ang);
+        this.future = (Future<Void>) backgroundThreadExecutor.submit(() -> {
+
+            locationService.getLocation().observe(this, loc -> {
+                textView.setText(Double.toString(loc.first) + " , " +
+                        Double.toString(loc.second));
+
+                SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+                Double pLat = Double.parseDouble(preferences.getString("parentLatitude", "123"));
+                Double pLong = Double.parseDouble(preferences.getString("parentLongitude", "123"));
+
+                double adjacent = (pLong - loc.second);
+                double hypotenuse = Math.sqrt(((pLat - loc.first) * (pLat - loc.first)) + ((pLong - loc.second) * (pLong - loc.second)));
+
+                double ang = Math.acos(adjacent / hypotenuse);
+
+                runOnUiThread(() -> {
+
+                    ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
+                    layoutParams.circleAngle = (float) Math.toDegrees(ang);
+
+                    orientationService.getOrientation().observe(this, orientation -> {
+                        float deg = (float) Math.toDegrees(orientation);
+                        compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
+
+
+                    });
+                });
+
+            });
+            loadProfile();
+
         });
-        loadProfile();
+
+
 
         //this.future = (Future<Void>) backgroundThreadExecutor.submit(() -> {
         //System.out.println("sleep");
-        orientationService.getOrientation().observe(this, orientation -> {
-            float deg = (float) Math.toDegrees(orientation);
-            compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
 
-
-        });
         //});
     }
 
@@ -131,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         System.out.println("new activity");
     }
-
+/*
     public double refresh(TextView textView, Pair<Double,Double> loc) {
         textView.setText(Double.toString(loc.first) + " , " +
                 Double.toString(loc.second));
