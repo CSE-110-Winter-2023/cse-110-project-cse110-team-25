@@ -45,68 +45,50 @@ public class MainActivity extends AppCompatActivity {
         ConstraintLayout compass = findViewById(R.id.compass);
 
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        /*if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 200);
             requestingLocationUpdates = true;
-        }
+        }*/
+
 
         locationService = LocationService.singleton(this);
+
+        locationService.registerLocationListener();
 
         ImageView parentHouse = findViewById(R.id.parentHouse);
         TextView textView = findViewById(R.id.timeTextView);
 
-
-
         locationService.getLocation().observe(this, loc -> {
-            Log.d("whatever", "after observe");
-            runOnUiThread(() -> {
-                textView.setText(Double.toString(loc.first) + " , " +
-                        Double.toString(loc.second));
-            });
-        });
+            textView.setText(Double.toString(loc.first) + " , " +
+                    Double.toString(loc.second));
 
-        this.future = backgroundThreadExecutor.scheduleAtFixedRate(() -> {
-            Log.d("whatever", textView.getText().toString());
-
-            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-            Double pLat = Double.parseDouble(preferences.getString("parentLatitude", "123"));
-            Double pLong = Double.parseDouble(preferences.getString("parentLongitude", "123"));
-
-
-            //double adjacent = (pLong - loc.second);
-            //double hypotenuse = Math.sqrt(((pLat - loc.first) * (pLat - loc.first)) + ((pLong - loc.second) * (pLong - loc.second)));
-
-            //double ang = Math.acos(adjacent / hypotenuse);
-
-
-
-
-        }, 0, 1000, TimeUnit.MILLISECONDS);
-
-        runOnUiThread(() -> {
-
-            ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
-            //layoutParams.circleAngle = (float) Math.toDegrees(ang);
-            layoutParams.circleAngle = (float) Math.toDegrees(0);
-
-            orientationService.getOrientation().observe(this, orientation -> {
-                Log.d("whatever", "after orientation");
-                float deg = (float) Math.toDegrees(orientation);
-                compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
-
-
-            });
-
+            updateCompass(loc, parentHouse, compass);
         });
 
         loadProfile();
 
 
-        //this.future = (Future<Void>) backgroundThreadExecutor.submit(() -> {
-        //System.out.println("sleep");
+    }
 
-        //});
+    protected void updateCompass(Pair<Double,Double> loc, ImageView parentHouse, ConstraintLayout compass) {
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        Double pLat = Double.parseDouble(preferences.getString("parentLatitude", "123"));
+        Double pLong = Double.parseDouble(preferences.getString("parentLongitude", "123"));
+
+        double adjacent = (pLong - loc.second);
+        double hypotenuse = Math.sqrt(((pLat - loc.first) * (pLat - loc.first)) + ((pLong - loc.second) * (pLong - loc.second)));
+
+        double ang = Math.acos(adjacent / hypotenuse);
+
+        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
+        layoutParams.circleAngle = DEGREES_IN_A_CIRCLE - (float) Math.toDegrees(ang);
+
+        orientationService.getOrientation().getValue();
+        orientationService.getOrientation().observe(this, orientation -> {
+            float deg = (float) Math.toDegrees(orientation);
+            compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
+        });
     }
 
     protected void onPause(Bundle savedInstanceState) {
