@@ -33,41 +33,37 @@ public class MainActivity extends AppCompatActivity {
     public static final int DEGREES_IN_A_CIRCLE = 360;
     private ScheduledExecutorService backgroundThreadExecutor = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> future;
+    ImageView parentHouse;
+    TextView textView;
+    ConstraintLayout compass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        loadProfile();
 
         orientationService = OrientationService.singleton(this);
 
-        ConstraintLayout compass = findViewById(R.id.compass);
+        this.compass = findViewById(R.id.compass);
 
 
-        /*if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 200);
             requestingLocationUpdates = true;
-        }*/
+        }
 
 
         locationService = LocationService.singleton(this);
 
         locationService.registerLocationListener();
 
-        ImageView parentHouse = findViewById(R.id.parentHouse);
-        TextView textView = findViewById(R.id.timeTextView);
+        this.parentHouse = findViewById(R.id.parentHouse);
+        this.textView = findViewById(R.id.timeTextView);
 
-        locationService.getLocation().observe(this, loc -> {
-            textView.setText(Double.toString(loc.first) + " , " +
-                    Double.toString(loc.second));
-
-            updateCompass(loc, parentHouse, compass);
-        });
-
-        loadProfile();
-
+        update(parentHouse, textView, compass);
 
     }
 
@@ -84,11 +80,21 @@ public class MainActivity extends AppCompatActivity {
         ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
         layoutParams.circleAngle = DEGREES_IN_A_CIRCLE - (float) Math.toDegrees(ang);
 
-        orientationService.getOrientation().getValue();
-        orientationService.getOrientation().observe(this, orientation -> {
-            float deg = (float) Math.toDegrees(orientation);
-            compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
+
+        float deg = (float) Math.toDegrees(orientationService.getOrientation().getValue());
+        compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
+
+    }
+
+    protected void update(ImageView parentHouse, TextView textView, ConstraintLayout compass) {
+        locationService.getLocation().observe(this, loc -> {
+            textView.setText(Double.toString(loc.first) + " , " +
+                    Double.toString(loc.second));
+
+            updateCompass(loc, parentHouse, compass);
         });
+
+
     }
 
     protected void onPause(Bundle savedInstanceState) {
@@ -138,20 +144,12 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    public void save(View view) {
-        save();
-    }
-
     public void save() {
         saveProfile();
-        loadProfile();
+        //loadProfile();
+        //updateCompass(locationService.getLocation().getValue(), parentHouse, compass);
         //onPause(savedInstanceState);
 
-        Intent intent = new Intent(this, MainActivity.class);
-        //this.future.cancel(true);
-        finish();
-        startActivity(intent);
-        System.out.println("new activity");
     }
 /*
     public double refresh(TextView textView, Pair<Double,Double> loc) {
