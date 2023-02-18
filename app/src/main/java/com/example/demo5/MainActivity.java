@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView parentHouse;
     TextView textView;
     ConstraintLayout compass;
+    ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,37 +65,43 @@ public class MainActivity extends AppCompatActivity {
         this.textView = findViewById(R.id.timeTextView);
 
         update(parentHouse, textView, compass);
-
     }
 
-    protected void updateCompass(Pair<Double,Double> loc, ImageView parentHouse, ConstraintLayout compass) {
+    protected void updateCompass(Pair<Double, Double> loc, ImageView parentHouse, ConstraintLayout compass) {
+        /*
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
         Double pLat = Double.parseDouble(preferences.getString("parentLatitude", "123"));
         Double pLong = Double.parseDouble(preferences.getString("parentLongitude", "123"));
+*/
+        TextView parentLatitude = findViewById(R.id.parentLatitude);
+        TextView parentLongitude = findViewById(R.id.parentLongitude);
+        Double pLong = Double.valueOf(parentLatitude.getText().toString());
+        Double pLat = Double.valueOf(parentLongitude.getText().toString());
 
         double adjacent = (pLong - loc.second);
         double hypotenuse = Math.sqrt(((pLat - loc.first) * (pLat - loc.first)) + ((pLong - loc.second) * (pLong - loc.second)));
+
+
 
         double ang = Math.acos(adjacent / hypotenuse);
 
         ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) parentHouse.getLayoutParams();
         layoutParams.circleAngle = DEGREES_IN_A_CIRCLE - (float) Math.toDegrees(ang);
 
+        LiveData<Float> orientation = orientationService.getOrientation();
+        Float orientationValue = orientation.getValue();
 
-        float deg = (float) Math.toDegrees(orientationService.getOrientation().getValue());
+        float deg = (float) Math.toDegrees(orientationValue);
         compass.setRotation(DEGREES_IN_A_CIRCLE - deg);
 
     }
 
     protected void update(ImageView parentHouse, TextView textView, ConstraintLayout compass) {
         locationService.getLocation().observe(this, loc -> {
-            textView.setText(Double.toString(loc.first) + " , " +
-                    Double.toString(loc.second));
+            textView.setText(Double.toString(loc.first) + " , " + Double.toString(loc.second));
 
             updateCompass(loc, parentHouse, compass);
         });
-
-
     }
 
     protected void onPause(Bundle savedInstanceState) {
@@ -102,27 +109,6 @@ public class MainActivity extends AppCompatActivity {
         orientationService.unregisterSensorListeners();
         //onStop(savedInstanceState);
     }
-
-    /*
-        protected void onStop(Bundle savedInstanceState) {
-            super.onStop();
-            onCreate(savedInstanceState);
-        }
-
-        @Override
-        protected void onResume() {
-            super.onResume();
-            if (requestingLocationUpdates) {
-                startLocationUpdates();
-            }
-        }
-
-        private void startLocationUpdates() {
-            //fusedLocationClient.requestLocationUpdates(locationRequest,
-            //        locationCallback,
-            //        Looper.getMainLooper());
-        }
-    */
 
     public void loadProfile() {
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
@@ -144,31 +130,20 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    public void save(View view) {
+        //save();
+        LiveData<Pair<Double, Double>> location = locationService.getLocation();
+        Pair<Double, Double> locationValue = location.getValue();
+        updateCompass(locationValue, parentHouse, compass);
+    }
+
     public void save() {
         saveProfile();
         //loadProfile();
-        //updateCompass(locationService.getLocation().getValue(), parentHouse, compass);
+        LiveData<Pair<Double, Double>> location = locationService.getLocation();
+        Pair<Double, Double> locationValue = location.getValue();
+        updateCompass(locationValue, parentHouse, compass);
         //onPause(savedInstanceState);
 
     }
-/*
-    public double refresh(TextView textView, Pair<Double,Double> loc) {
-        textView.setText(Double.toString(loc.first) + " , " +
-                Double.toString(loc.second));
-
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-        Double pLat = Double.parseDouble(preferences.getString("parentLatitude", "123"));
-        Double pLong = Double.parseDouble(preferences.getString("parentLongitude", "123"));
-
-        double adjacent = (pLong - loc.second);
-        double hypotenuse = Math.sqrt(((pLat - loc.first) * (pLat - loc.first)) + ((pLong - loc.second) * (pLong - loc.second)));
-
-        return Math.acos(adjacent / hypotenuse);
-    }
-
-    public void refresh(View view) {
-        refresh(textView, loc);
-    }
-
- */
 }
