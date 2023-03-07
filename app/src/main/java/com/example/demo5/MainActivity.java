@@ -59,11 +59,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void settingCircleAngle(int ang) {
-            TextView friendtext = findViewById(R.id.best_friend);
-            ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) friendtext.getLayoutParams();
+            TextView friendText = findViewById(R.id.best_friend);
+            ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) friendText.getLayoutParams();
 
             layoutParams.circleRadius = ang;
-            friendtext.setLayoutParams(layoutParams);
+            friendText.setLayoutParams(layoutParams);
 
 
         }
@@ -72,31 +72,66 @@ public class MainActivity extends AppCompatActivity {
             //Initializing the variables to find the miles
             //Math.acos(Math.sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon2-lon1))*6371
 
-            //TODO: bro the calculations are a lil off for now...
+
 
             double mile_total = distanceCalculation(longitude, latitude);
-
-
+            //disk1: <=1 miles
+            //disk2: 1-10 miles
+            //disk3: 10-500 miles
+            //disk4: >500 miles
 
             //Starting the placement of friend onto screen
             if(mile_total < 1) {
                 //Place it onto disk 1
-                settingCircleAngle(45);
+                double circleAng = mile_total/1.0;
+                circleAng = circleAng * 50.0;
+                settingCircleAngle((int) circleAng);
+                int ang = (int) Math.round(circleAng);
+
+                settingCircleAngle(ang);
+                //settingCircleAngle(45);
                 System.out.println("we out here: disk  1");
+
             }
             else if(mile_total >=1 && mile_total < 10) {
                 //Place it onto disk 2
-                settingCircleAngle(95);
+                double circleAng = mile_total/10.0;
+                circleAng = circleAng * 100.0;
+                settingCircleAngle((int) circleAng);
+                int ang = (int) Math.round(circleAng);
+
+                settingCircleAngle(ang);
+
+                //settingCircleAngle(95);
                 System.out.println("we out here: disk 2");
             }
             else if(mile_total >= 10 && mile_total < 500) {
                 //Place it onto disk 3
-                settingCircleAngle(195);
+                double circleAng = mile_total/490.0;
+                circleAng = circleAng * 200.0;
+                if(circleAng < 100.0){
+                    circleAng = 101.0;
+                }
+                //settingCircleAngle((int) circleAng);
+                int ang = (int) Math.round(circleAng);
+
+                settingCircleAngle(ang);
+
+                //settingCircleAngle(195);
                 System.out.println("we out here: disk 3");
             }
             else {
                 //Placing it onto disk 4
-                settingCircleAngle(355);
+                double circleAng = mile_total/500.0;
+                circleAng = circleAng * 400.0;
+                settingCircleAngle((int) circleAng);
+                int ang = (int) Math.round(circleAng);
+
+                settingCircleAngle(ang);
+
+                //settingCircleAngle((int) (mile_total/500) * 400);
+
+                //settingCircleAngle(355);
                 System.out.println("we out here: disk 4");
             }
 
