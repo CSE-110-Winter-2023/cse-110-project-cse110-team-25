@@ -368,8 +368,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * DONT DELETE
-     * @param time
+     * END OF US-13, starting US-14
      */
-//    @Override
+    private void GPSLoss(){
+        System.out.println("Working on US-14");
+    }
+
 }
