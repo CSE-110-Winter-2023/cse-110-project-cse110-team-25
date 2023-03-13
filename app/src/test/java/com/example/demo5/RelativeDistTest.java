@@ -1,5 +1,10 @@
 package com.example.demo5;
 
+<<<<<<< HEAD
+=======
+import static org.junit.Assert.assertEquals;
+
+>>>>>>> 3fddc62b658ed0d8e01ee82f11d0ecce5a85deec
 import android.content.SharedPreferences;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,6 +30,12 @@ public class RelativeDistTest {
     public static final Double NINETY_DEGREES = 90.0;
     public static final long NINETY_DEGREES_LONG = 90;
 
+<<<<<<< HEAD
+=======
+    /**
+     * Will Test if the appropriate miles is calculated and placed within the correct disk
+     */
+>>>>>>> 3fddc62b658ed0d8e01ee82f11d0ecce5a85deec
     @Test
     public void checkDisc1() {
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
@@ -37,7 +48,10 @@ public class RelativeDistTest {
 
             double actual = activity.distanceCalculation(33.81212871249689, -117.91895732047263);
 
+<<<<<<< HEAD
             System.out.println(actual);
+=======
+>>>>>>> 3fddc62b658ed0d8e01ee82f11d0ecce5a85deec
             //Will check if we are less than a mile away thus signifying that we are in the correct location
             assert (actual < 1);
             assert(actual * 50 < 50);
@@ -58,7 +72,10 @@ public class RelativeDistTest {
 
             double actual = activity.distanceCalculation(33.86234, -117.92193);
 
+<<<<<<< HEAD
             System.out.println(actual);
+=======
+>>>>>>> 3fddc62b658ed0d8e01ee82f11d0ecce5a85deec
             //Will check if we are less than a mile away thus signifying that we are in the correct location
             assert (actual < 10);
             assert((actual / 10) * 100 < 100);
@@ -68,5 +85,53 @@ public class RelativeDistTest {
 
         });
     }
+<<<<<<< HEAD
 }
 
+=======
+
+
+    @Test
+    public void CheckDisc3(){
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+
+        scenario.onActivity(activity -> {
+            //Will check if it's 50 miles away
+            double expected = 55.31004861580981;
+
+            double actual = activity.distanceCalculation(32.880238450982766, -117.2339547722171);
+            //Will check if we are less than a mile away thus signifying that we are in the correct location
+            assert (actual >= 10 && actual < 500);
+            assert((actual /490) * 200 < 200);
+            assert (expected == actual);
+
+        });
+    }
+
+    @Test
+    public void CheckDisc4(){
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+
+        scenario.onActivity(activity -> {
+            //Will check if it's 500 miles away
+            double expected = 4335.999311862558;
+            int expectedWhole = (int) Math.round(expected);
+
+            double actual = activity.distanceCalculation(-19.824292359262596, -47.058219362212725);
+            int expectedActual = (int) Math.round(actual);
+
+            //Will check if we are less than a mile away thus signifying that we are in the correct location
+            assert (actual >= 500);
+            assert((actual /12427.0) * 500 < 500);
+            assert (expectedWhole == expectedActual);
+
+        });
+    }
+}
+>>>>>>> 3fddc62b658ed0d8e01ee82f11d0ecce5a85deec
