@@ -1,41 +1,39 @@
 package com.example.demo5;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.function.BiConsumer;
 
-import androidx.annotation.NonNull;
+public class FriendAdapter extends BaseAdapter {
 
-public class FriendAdapter extends ArrayAdapter {
-
-    private List<Friend> friends;
-    private BiConsumer<Friend, String> onTextEditedHandler;
-
-    public FriendAdapter(@NonNull Context context, int resource, List<Friend> friends) {
-        super(context, resource, friends);
-        this.friends = friends;
-    }
-
-    public void setOnTextEditedHandler(BiConsumer<Friend, String> onTextEdited) {
-        this.onTextEditedHandler = onTextEdited;
-    }
-
+    private List<Friend> friends = Collections.emptyList();
 
     public void setFriends(List<Friend> friends) {
-        this.friends.clear();
-        //this.clear();
-        this.friends.addAll(friends);
-        //addAll(friends);
+        this.friends = friends;
         notifyDataSetChanged();
     }
 
     public List<Friend> getFriends() {
         return friends;
+    }
+
+    @Override
+    public int getCount() {
+        return friends.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return friends.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return friends.get(position).getUidString().hashCode();
     }
 
     @Override
