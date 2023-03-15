@@ -1,7 +1,5 @@
 package com.example.demo5;
 
-import android.util.Log;
-
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Random;
@@ -60,46 +58,6 @@ public class Friend {
         Double newLat = (new Random()).nextDouble() * 200 - 100;
         Double newLong = (new Random()).nextDouble() * 200 - 100;
         loc = new Pair<>(newLat, newLong);
-    }
-
-    public void testMove() {
-        for (int i = 0; i < 100; ++i) {
-
-            switch (i % 4) {
-                case 0:
-                    loc = new Pair<Double, Double>(1.0, 1.0);
-                    break;
-                case 1:
-                    loc = new Pair<Double, Double>(1.0, -1.0);
-                    break;
-                case 2:
-                    loc = new Pair<Double, Double>(-1.0, -1.0);
-                    break;
-                case 3:
-                    loc = new Pair<Double, Double>(-1.0, 1.0);
-                    break;
-                default:
-                    Log.i("ERROR", "yeah, this isn't working");
-                    break;
-            }
-
-            try {
-                Thread.sleep(1000);
-                Log.i(getUidString(), loc.toString());
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-    }
-
-    public void testMove2() {
-        loc = new Pair<Double, Double>(0.0, -1.0);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
-        }
-        //loc.postValue(new Pair<Double, Double>(-1.0, -1.0));
     }
 }
 
