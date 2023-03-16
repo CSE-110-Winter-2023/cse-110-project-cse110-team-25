@@ -33,7 +33,7 @@ public class FriendAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return friends.get(position).getUidString().hashCode();
+        return friends.get(position).getUid().hashCode();
     }
 
     @Override
