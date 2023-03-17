@@ -34,6 +34,7 @@ public class Friend {
     Friend() {
         uid = "UUID.randomUUID()";
         this.label = "Suhaib";
+        this.friendRad = 0.0;
     }
 
     String getName() {

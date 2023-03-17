@@ -3,20 +3,13 @@ package com.example.demo5;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.location.GpsStatus;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,19 +18,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-
-import static java.lang.Math.floor;
-
-import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -75,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         friends.observe(this, this::setFriends);
 
         userLocation = new Pair<Double,Double>(0.0,0.0);
-        
+        friend = viewModel.getFriend("nos");
         for (Friend curr : friendsList) {
             ConstraintLayout layout = (ConstraintLayout) findViewById(R.id.compass);
 
@@ -85,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             friend.setText(name);
             curr.spot = friend;
 
-            ConstraintLayout.LayoutParams lay = new ConstraintLayout.LayoutParams(findViewById(R.id.friend1).getLayoutParams());
+            ConstraintLayout.LayoutParams lay = new ConstraintLayout.LayoutParams(findViewById(R.id.friend).getLayoutParams());
 
             lay.circleConstraint = R.id.compass;
             lay.circleRadius = 400;
@@ -100,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
 
         distance = new Distance(this);
         gpsSignal = new GpsSignal(this);
+
+
+
         this.reobserveLocation();
 
         zoomCounter = 2;
@@ -158,14 +148,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         friend.observe(this, this::angleCalculation);
-        updateFriendDirection();
 
         for (Friend friend : this.friends.getValue()) {
             var bestFriendLocationData1 = friend.getLocation();
 
             friend.setFriendRad(angleCalculation(bestFriendLocationData1));
 
-            ConstraintLayout.LayoutParams lay = new ConstraintLayout.LayoutParams(findViewById(R.id.friend1).getLayoutParams());
+            ConstraintLayout.LayoutParams lay = new ConstraintLayout.LayoutParams(findViewById(R.id.friend).getLayoutParams());
 
             lay.circleAngle = (float) angleCalculation(friend.getLocation());
             friend.spot.setLayoutParams(lay);
@@ -175,15 +164,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void angleCalculation(Friend friend) {
+        if (friend == null)
+            return;
+
         friend.updateAngle(userLocation);
-    }
-
-
-    private void updateFriendDirection() {
         TextView bestFriend = findViewById(R.id.best_friend);
         ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams)
                 bestFriend.getLayoutParams();
-        layoutParams.circleAngle = (float) Math.toDegrees(friend.getValue().getFriendRad());
+        layoutParams.circleAngle = (float) Math.toDegrees(friend.getFriendRad());
         bestFriend.setLayoutParams(layoutParams);
     }
 
@@ -204,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getDao().upsert(newfriend);
 
         //friend.setId(5);
-        ConstraintLayout.LayoutParams lay = new ConstraintLayout.LayoutParams(findViewById(R.id.friend1).getLayoutParams());
+        ConstraintLayout.LayoutParams lay = new ConstraintLayout.LayoutParams(findViewById(R.id.friend).getLayoutParams());
 
         lay.circleConstraint = R.id.compass;
         lay.circleRadius = 400;

@@ -63,13 +63,13 @@ public class FriendAPI {
     }
 
     public Friend getFriend(String public_code) {
+
         String encodedPublicCode = public_code.replace(" ", "%20");
         Request request = new Request.Builder()
                 .url("https://socialcompass.goto.ucsd.edu/location/" + encodedPublicCode)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-
             String body = response.body().string();
             System.out.println(body);
             Gson gson = new Gson();
