@@ -8,7 +8,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.Collections;
@@ -49,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
     public ZoomFeature zoomFeature;
     private Friend bestFriend;
 
+    public MainActivity() {
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         locationService = LocationService.singleton(this);
 
-        CompassViewModel viewModel = new ViewModelProvider(this).get(CompassViewModel.class);
+        viewModel = new ViewModelProvider(this).get(CompassViewModel.class);
 
         friends = viewModel.getFriends();
         friends.observe(this, this::setFriends);
@@ -154,9 +156,12 @@ public class MainActivity extends AppCompatActivity {
 
             friend.setFriendRad(angleCalculation(bestFriendLocationData1));
 
-            ConstraintLayout.LayoutParams lay = new ConstraintLayout.LayoutParams(findViewById(R.id.friend).getLayoutParams());
+            var friendView = findViewById(R.id.best_friend);
+
+            ConstraintLayout.LayoutParams lay = new ConstraintLayout.LayoutParams(friendView.getLayoutParams());
 
             lay.circleAngle = (float) angleCalculation(friend.getLocation());
+            friend.spot = (TextView) friendView;
             friend.spot.setLayoutParams(lay);
             //System.out.println(friend.getName());
         }
@@ -167,26 +172,21 @@ public class MainActivity extends AppCompatActivity {
         if (friend == null)
             return;
 
-        friend.updateAngle(userLocation);
-        TextView bestFriend = findViewById(R.id.best_friend);
-        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams)
-                bestFriend.getLayoutParams();
-        layoutParams.circleAngle = (float) Math.toDegrees(friend.getFriendRad());
-        bestFriend.setLayoutParams(layoutParams);
+        submit(friend);
     }
 
 
-    public void submit(View view) {
+    public void submit(Friend newfriend) {
         ConstraintLayout layout = (ConstraintLayout) findViewById(R.id.compass);
 
         TextView friend = new TextView(this);
 
-        EditText inp = (EditText) findViewById(R.id.enter_uid);
+        /*EditText inp = (EditText) findViewById(R.id.enter_uid);
         String name = inp.getText().toString();
         friend.setText(name);
 
-        Friend newfriend = new Friend();
-        newfriend.setName(name);
+        //Friend newfriend = new Friend();
+        newfriend.setName(name);*/
         this.friends.getValue().add(newfriend);
         newfriend.spot = friend;
         viewModel.getDao().upsert(newfriend);
