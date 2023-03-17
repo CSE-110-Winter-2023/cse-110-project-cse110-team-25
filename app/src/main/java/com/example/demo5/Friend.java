@@ -113,5 +113,9 @@ public class Friend {
     public Pair<Double, Double> getLocation() {
         return new Pair<>(latitude, longitude);
     }
+
+    public void updateAngle(Pair<Double,Double> userLocation) {
+        friendRad = Math.atan2(getLongitude() - userLocation.second, getLatitude() - userLocation.first);
+    }
 }
 

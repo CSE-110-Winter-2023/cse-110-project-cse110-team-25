@@ -1,14 +1,13 @@
 package com.example.demo5;
 
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+
+import java.util.Arrays;
 
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.annotation.NonNull;
@@ -18,7 +17,8 @@ import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import java.util.Arrays;
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class LocationService implements LocationListener {
 
@@ -53,9 +53,11 @@ public class LocationService implements LocationListener {
         this.locationValue = new MutableLiveData<>();
         this.activity = activity;
         this.locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-        // Register sensor listeners
+
+        //Register sensor listeners
         withLocationPermissions(this::registerLocationListener);
     }
+
 
     /**  This will only be called when we for sure have permissions. */
     @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
