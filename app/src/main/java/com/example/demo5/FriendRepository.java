@@ -34,7 +34,8 @@ public class FriendRepository {
     }
 
     public LiveData<List<Friend>> getAllLocal() {
-        return dao.getAll();
+        realFriendsData.postValue(dao.getAll());
+        return realFriendsData;
     }
 
     public void upsertLocal(Friend friend) {
@@ -99,7 +100,7 @@ public class FriendRepository {
         };
         
         friends.addSource(getAllLocal(), friends::postValue);
-        friends.addSource(getAllRemote(), updateFromRemote);
+        //friends.addSource(getAllRemote(), updateFromRemote);
 
         return friends;
     }
@@ -116,7 +117,7 @@ public class FriendRepository {
         };
 
         friend.addSource(getLocal(public_code), friend::postValue);
-        friend.addSource(getRemote(public_code), updateFromRemote);
+        //friend.addSource(getRemote(public_code), updateFromRemote);
 
         return friend;
     }

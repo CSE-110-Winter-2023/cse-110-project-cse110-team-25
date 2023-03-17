@@ -6,6 +6,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
 public class CompassViewModel extends AndroidViewModel {
@@ -35,12 +36,13 @@ public class CompassViewModel extends AndroidViewModel {
     public LiveData<Friend> getFriend(String public_code) {
         var friend = repo.getSynced(public_code);
 
+        friend.observe(this, this::save);
         return friend;
     }
 
     public void save(Friend friend) {
-        //repo.upsertLocal(note);
-        repo.upsertRemote(friend);
+        repo.upsertLocal(friend);
+        //repo.upsertRemote(friend);
     }
 
     public FriendDao getDao() {
