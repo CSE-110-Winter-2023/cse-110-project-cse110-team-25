@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private LiveData<List<Friend>> friends;
     private LiveData<Friend> friend;
     private CompassViewModel viewModel;
-    private List<Friend> friendsList;
+    private List<Friend> friendsList = Collections.EMPTY_LIST;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
