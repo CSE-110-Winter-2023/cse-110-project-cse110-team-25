@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("LOCATION MANAGER: " + locationManager.toString());
 
 
-        distance = new Distance(this);
+        distance = new Distance(this, viewModel);
         gpsSignal = new GpsSignal(this);
         this.reobserveLocation();
 
@@ -206,12 +206,15 @@ public class MainActivity extends AppCompatActivity {
         if (skip1)
             return;
 
+        fr.observe(this, this::getDistance);
+
         friend.setText(name);
 
         Friend newfriend = new Friend(name);
         newfriend.setName(name);
         this.friendsList.add(newfriend);
         newfriend.spot = friend;
+
         viewModel.getDao().upsert(newfriend);
 
         //friend.setId(5);
@@ -228,9 +231,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void getDistance(Friend friend) {
+        distance.setLocation(friend.getLatitude(), friend.getLongitude());
+    }
+
     private void checkServ(Friend friend) {
         if (friend == null)
             skip1 = true;
+
+
     }
 
     public void onClearClick(View view) {
@@ -242,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("CLEARING: " + name);
             viewModel.getDao().delete(curr);
         }
-        setContentView(R.layout.activity_compass);
     }
 
     public void onZoomInClick(View view) {

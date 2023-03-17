@@ -2,18 +2,12 @@ package com.example.demo5;
 
 import static org.junit.Assert.assertEquals;
 
-import android.content.SharedPreferences;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ActivityScenario;
 
 @RunWith(RobolectricTestRunner.class)
